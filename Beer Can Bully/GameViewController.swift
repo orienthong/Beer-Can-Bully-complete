@@ -110,6 +110,7 @@ class GameViewController: UIViewController {
     hudNode.rotation = SCNVector4(x: 1, y: 0, z: 0, w: Float(M_PI))
     
     helper.state = .tapToPlay
+    helper.menuLabelNode.text = "Highscore: \(helper.highScore)"
     
     let transition = SKTransition.crossFade(withDuration: 1.0)
     scnView.present(
@@ -156,6 +157,8 @@ class GameViewController: UIViewController {
     touchCatchingPlaneNode.position = SCNVector3(x: 0, y: 0, z: shelfNode.position.z)
     touchCatchingPlaneNode.eulerAngles = cameraNode.eulerAngles
     createLevelFrom(baseNode: shelfNode)
+    
+    levelScene.rootNode.addChildNode(helper.hudNode)
   }
   func setupNextLevel() {
     print(helper.ballNodes.count)
@@ -306,6 +309,26 @@ class GameViewController: UIViewController {
     endTouchTime = nil
     startTouch = nil
     endTouch = nil
+    
+    if helper.ballNodes.count == GameHelper.maxBallNodes {
+      let waitAction = SCNAction.wait(duration: 3)
+      let blockAction = SCNAction.run { _ in
+        self.resetLevel()
+        self.helper.ballNodes.removeAll()
+        self.helper.currentLevel = 0
+        self.helper.score = 0
+        self.presentMenu()
+      }
+      let sequenceAction = SCNAction.sequence([waitAction, blockAction])
+      levelScene.rootNode.runAction(sequenceAction, forKey: GameHelper.gameEndActionKey)
+    } else {
+      let waitAction = SCNAction.wait(duration: 0.5)
+      let blockAction = SCNAction.run { _ in
+        self.dispenseNewBall()
+      }
+      let sequenceAction = SCNAction.sequence([waitAction, blockAction])
+      levelScene.rootNode.runAction(sequenceAction)
+    }
   }
 }
 extension GameViewController: SCNPhysicsContactDelegate {
