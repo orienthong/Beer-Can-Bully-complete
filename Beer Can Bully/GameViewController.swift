@@ -35,6 +35,7 @@ class GameViewController: UIViewController {
   var cameraNode: SCNNode!
   var shelfNode: SCNNode!
   var baseCanNode: SCNNode!
+  var currentBallNode: SCNNode?
   
   lazy var touchCatchingPlaneNode: SCNNode = {
     let node = SCNNode(geometry: SCNPlane(width: 40, height: 40))
@@ -157,6 +158,13 @@ class GameViewController: UIViewController {
       levelScene.rootNode.addChildNode(canNode)
       helper.canNodes.append(canNode)
     }
+    //Delay the ball creation on level change 
+    let waitAction = SCNAction.wait(duration: 1.0)
+    let blockAction = SCNAction.run { (_) in
+      self.dispenseNewBall()
+    }
+    let sequenceAction = SCNAction.sequence([waitAction, blockAction])
+    levelScene.rootNode.runAction(sequenceAction)
   }
   //That function simply creates positions for various numbers of cans and stores it in the helper class’ levels array.
   func createLevelFrom(baseNode: SCNNode) {
@@ -216,4 +224,24 @@ class GameViewController: UIViewController {
     
     helper.levels = [levelOne, levelTwo]
   }
+  
+  func dispenseNewBall() {
+    let ballScene = SCNScene(named: "resources.scnassets/Ball.scn")!
+    
+    let ballNode = ballScene.rootNode.childNode(withName: "sphere", recursively: true)!
+    ballNode.name = "ball"
+    let ballPhysicsBody = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(geometry: SCNSphere(radius: 0.35)))
+    ballPhysicsBody.mass = 3
+    ballPhysicsBody.friction = 2
+    ballPhysicsBody.contactTestBitMask = 1
+    ballNode.physicsBody = ballPhysicsBody
+    ballNode.position = SCNVector3(x: -1.75, y: 1.75, z: 8.0)
+    ballNode.physicsBody?.applyForce(SCNVector3(x: 0.825, y: 0, z: 0), asImpulse: true)
+    
+    currentBallNode = ballNode
+    levelScene.rootNode.addChildNode(ballNode)
+    
+  }
+  
+  
 }
