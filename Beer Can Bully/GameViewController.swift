@@ -30,7 +30,19 @@ class GameViewController: UIViewController {
   let helper = GameHelper()
   // Scene properties
   var menuScene = SCNScene(named: "resources.scnassets/Menu.scn")!
-  var levelScene = SCNScene(named: "resources.scnassets/Menu.scn")!
+  var levelScene = SCNScene(named: "resources.scnassets/Level.scn")!
+  // Node properties
+  var cameraNode: SCNNode!
+  var shelfNode: SCNNode!
+  var baseCanNode: SCNNode!
+  
+  lazy var touchCatchingPlaneNode: SCNNode = {
+    let node = SCNNode(geometry: SCNPlane(width: 40, height: 40))
+    node.opacity = 0.001
+    node.castsShadow = false
+    return node
+  }()
+  
   
   // Accessor for the SCNView
   var scnView: SCNView {
@@ -44,6 +56,7 @@ class GameViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     presentMenu()
+    createScene()
   }
   
   // MARK: - Touches
@@ -88,5 +101,21 @@ class GameViewController: UIViewController {
     let transition = SKTransition.crossFade(withDuration: 1.0)
     scnView.present(levelScene, with: transition, incomingPointOfView: nil, completionHandler: nil)
   }
-
+  //MARK: - Creation 
+  func createScene() {
+    cameraNode = levelScene.rootNode.childNode(withName: "camera", recursively: true)!
+    shelfNode = levelScene.rootNode.childNode(withName: "shelf", recursively: true)!
+    
+    guard let canScene = SCNScene(named: "resources.scnassets/Can.scn") else { return }
+    baseCanNode = canScene.rootNode.childNode(withName: "can", recursively: true)!
+    let shelfPhysicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: shelfNode.geometry!))
+    shelfPhysicsBody.isAffectedByGravity = false
+    shelfNode.physicsBody = shelfPhysicsBody
+    
+    levelScene.rootNode.addChildNode(touchCatchingPlaneNode)
+    touchCatchingPlaneNode.position = SCNVector3(x: 0, y: 0, z: shelfNode.position.z)
+    touchCatchingPlaneNode.eulerAngles = cameraNode.eulerAngles
+  }
+  
+  
 }
