@@ -36,6 +36,11 @@ class GameViewController: UIViewController {
   var shelfNode: SCNNode!
   var baseCanNode: SCNNode!
   var currentBallNode: SCNNode?
+  // Ball throwing mechanics
+  var startTouchTime: TimeInterval!
+  var endTouchTime: TimeInterval!
+  var startTouch: UITouch?
+  var endTouch: UITouch?
   
   lazy var touchCatchingPlaneNode: SCNNode = {
     let node = SCNNode(geometry: SCNPlane(width: 40, height: 40))
@@ -65,12 +70,27 @@ class GameViewController: UIViewController {
     super.touchesBegan(touches, with: event)
     if helper.state == .tapToPlay {
       presentLevel()
+    } else {
+      guard let firstTouch = touches.first else { return }
+      
+      let point = firstTouch.location(in: scnView)
+      let hitResults = scnView.hitTest(point, options: [:])
+      
+      if hitResults.first?.node == currentBallNode {
+         startTouch = touches.first
+         startTouchTime = Date().timeIntervalSince1970
+      }
     }
   }
   
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
     super.touchesEnded(touches, with: event)
     
+    guard startTouchTime != nil else { return }
+    
+    endTouch = touches.first
+    endTouchTime = Date().timeIntervalSince1970
+    throwBall()
   }
   
   // MARK: - ViewController Overrides
@@ -241,6 +261,33 @@ class GameViewController: UIViewController {
     currentBallNode = ballNode
     levelScene.rootNode.addChildNode(ballNode)
     
+  }
+  
+  func throwBall() {
+    guard let ballNode = currentBallNode else { return }
+    guard let endingTouch = endTouch else { return }
+    
+    let firstTouchResult = scnView.hitTest(endingTouch.location(in: view), options: nil).filter({
+      $0.node == touchCatchingPlaneNode
+    }).first
+    
+    guard let touchResult = firstTouchResult else { return }
+    
+    levelScene.rootNode.runAction(SCNAction.playAudio(helper.whooshAudioSource, waitForCompletion: false))
+    
+    let timeDifference = endTouchTime - startTouchTime
+    let velocityComponent = Float(min(max(1 - timeDifference, 0.1), 1.0))
+    
+    let impulseVector = SCNVector3(x: touchResult.localCoordinates.x, y: touchResult.localCoordinates.y * velocityComponent * 3, z: shelfNode.position.z * velocityComponent * 15)
+    
+    ballNode.physicsBody?.applyForce(impulseVector, asImpulse: true)
+    helper.ballNodes.append(ballNode)
+    
+    currentBallNode = nil
+    startTouchTime = nil
+    endTouchTime = nil
+    startTouch = nil
+    endTouch = nil
   }
   
   
