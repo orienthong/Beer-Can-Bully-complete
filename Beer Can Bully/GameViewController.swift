@@ -41,6 +41,8 @@ class GameViewController: UIViewController {
   var endTouchTime: TimeInterval!
   var startTouch: UITouch?
   var endTouch: UITouch?
+  // increase the scroe
+  var bashedCanNames: [String] = []
   
   lazy var touchCatchingPlaneNode: SCNNode = {
     let node = SCNNode(geometry: SCNPlane(width: 40, height: 40))
@@ -118,13 +120,29 @@ class GameViewController: UIViewController {
     )
   }
   func presentLevel() {
+    resetLevel()
     setupNextLevel()
     helper.state = .playing
     let transition = SKTransition.crossFade(withDuration: 1.0)
     scnView.present(levelScene, with: transition, incomingPointOfView: nil, completionHandler: nil)
   }
+  func resetLevel() {
+    currentBallNode?.removeFromParentNode()
+    
+    bashedCanNames.removeAll()
+    
+    for canNode in helper.canNodes {
+      canNode.removeFromParentNode()
+    }
+    helper.canNodes.removeAll()
+    
+    for ballNode in helper.ballNodes {
+      ballNode.removeFromParentNode()
+    }
+  }
   //MARK: - Creation 
   func createScene() {
+    levelScene.physicsWorld.contactDelegate = self
     cameraNode = levelScene.rootNode.childNode(withName: "camera", recursively: true)!
     shelfNode = levelScene.rootNode.childNode(withName: "shelf", recursively: true)!
     
@@ -289,6 +307,81 @@ class GameViewController: UIViewController {
     startTouch = nil
     endTouch = nil
   }
+}
+extension GameViewController: SCNPhysicsContactDelegate {
   
-  
+  //MARK: SCNPhysicsContactDelegate
+  func physicsWorld(_ world: SCNPhysicsWorld, didEnd contact: SCNPhysicsContact) {
+    guard let nodeNameA = contact.nodeA.name else { return }
+    guard let nodeNameB = contact.nodeB.name else { return }
+    
+    var ballFloorContactNode: SCNNode?
+    //1.First you check to see if the contact was between the ball and the floor
+    if nodeNameA == "ball" && nodeNameB == "floor" {
+      ballFloorContactNode = contact.nodeA
+    } else if nodeNameB == "ball" && nodeNameA == "floor" {
+      ballFloorContactNode = contact.nodeB
+    }
+    
+    if let ballNode = ballFloorContactNode {
+      //2.You play a sound effect if the ball hits the floor
+      guard ballNode.action(forKey: GameHelper.ballFloorCollisionAudioKey) == nil else { return }
+      ballNode.runAction(SCNAction.playAudio(helper.ballFloorAudioSource, waitForCompletion: false), forKey: GameHelper.ballCanCollisionAudioKey)
+      return
+    }
+    
+    //3
+    var ballCanContactNode: SCNNode?
+    if nodeNameA.contains("Can") && nodeNameB == "ball" {
+      ballCanContactNode = contact.nodeA
+    } else if nodeNameB.contains("Can") && nodeNameA == "ball" {
+      ballCanContactNode = contact.nodeB
+    }
+    if let canNode = ballCanContactNode {
+      guard canNode.action(forKey: GameHelper.ballCanCollisionAudioKey) == nil else { return }
+      
+      canNode.runAction(SCNAction.playAudio(helper.ballCanAudioSource, waitForCompletion: true), forKey: GameHelper.ballCanCollisionAudioKey)
+      return
+    }
+    
+    //4.If the can has already collided with the floor, simply bail because you’ve already resolved this collison.将已经掉在地上的can忽略
+    if bashedCanNames.contains(nodeNameA) || bashedCanNames.contains(nodeNameB) { return }
+    
+    //5. check if a can hit the floor.
+    var canNodeWithContact: SCNNode?
+    if nodeNameA.contains("Can") && nodeNameB == "floor" {
+      canNodeWithContact = contact.nodeA
+    } else if nodeNameB.contains("Can") && nodeNameA == "floor" {
+      canNodeWithContact = contact.nodeB
+    }
+    
+    // 6
+    if let bashedCan = canNodeWithContact {
+      bashedCan.runAction(SCNAction.playAudio(helper.canFloorAudioSource, waitForCompletion: false))
+      bashedCanNames.append(bashedCan.name!)
+      helper.score += 1
+    }
+    
+    if bashedCanNames.count == helper.canNodes.count {
+      if levelScene.rootNode.action(forKey: GameHelper.gameEndActionKey) != nil {
+        levelScene.rootNode.removeAction(forKey: GameHelper.gameEndActionKey)
+      }
+      
+      let maxLevelIndex = helper.levels.count - 1
+      
+      if helper.currentLevel == maxLevelIndex {
+        helper.currentLevel = 0
+      } else {
+        helper.currentLevel += 1
+      }
+      
+      let waitAction = SCNAction.wait(duration: 1.0)
+      let blockAction = SCNAction.run({ (_) in
+        self.resetLevel()
+        self.setupNextLevel()
+      })
+      let sequenceAction = SCNAction.sequence([waitAction, blockAction])
+      levelScene.rootNode.runAction(sequenceAction)
+    }
+  }
 }
