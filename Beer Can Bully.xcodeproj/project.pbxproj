@@ -9,25 +9,25 @@
 /* Begin PBXBuildFile section */
 		48DCDEC11D0354EF00E805E4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48DCDEC01D0354EF00E805E4 /* AppDelegate.swift */; };
 		48DCDEC31D0354EF00E805E4 /* resources.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 48DCDEC21D0354EF00E805E4 /* resources.scnassets */; };
-		48DCDEC51D0354EF00E805E4 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48DCDEC41D0354EF00E805E4 /* GameViewController.swift */; };
 		48DCDEC81D0354EF00E805E4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48DCDEC61D0354EF00E805E4 /* Main.storyboard */; };
 		48DCDECA1D0354EF00E805E4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48DCDEC91D0354EF00E805E4 /* Assets.xcassets */; };
 		48DCDECD1D0354EF00E805E4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48DCDECB1D0354EF00E805E4 /* LaunchScreen.storyboard */; };
 		48EA0D4F1D22A27C00864D50 /* sounds in Resources */ = {isa = PBXBuildFile; fileRef = 48EA0D4E1D22A27C00864D50 /* sounds */; };
 		48EF72EA1D2548F100599E8E /* GameHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF72E91D2548F100599E8E /* GameHelper.swift */; };
+		C5FEB52B1DA9E191007526AD /* GameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FEB52A1DA9E191007526AD /* GameVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		48DCDEBD1D0354EF00E805E4 /* Beer Can Bully.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Beer Can Bully.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		48DCDEC01D0354EF00E805E4 /* AppDelegate.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 1; };
 		48DCDEC21D0354EF00E805E4 /* resources.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = resources.scnassets; sourceTree = "<group>"; };
-		48DCDEC41D0354EF00E805E4 /* GameViewController.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 1; };
 		48DCDEC71D0354EF00E805E4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		48DCDEC91D0354EF00E805E4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		48DCDECC1D0354EF00E805E4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		48DCDECE1D0354EF00E805E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		48EA0D4E1D22A27C00864D50 /* sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sounds; sourceTree = "<group>"; };
 		48EF72E91D2548F100599E8E /* GameHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = GameHelper.swift; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 1; };
+		C5FEB52A1DA9E191007526AD /* GameVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,8 +63,8 @@
 			children = (
 				48EA0D4E1D22A27C00864D50 /* sounds */,
 				48DCDEC21D0354EF00E805E4 /* resources.scnassets */,
-				48DCDEC41D0354EF00E805E4 /* GameViewController.swift */,
 				48EF72E91D2548F100599E8E /* GameHelper.swift */,
+				C5FEB52A1DA9E191007526AD /* GameVC.swift */,
 			);
 			path = "Beer Can Bully";
 			sourceTree = "<group>";
@@ -157,8 +157,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				48DCDEC51D0354EF00E805E4 /* GameViewController.swift in Sources */,
 				48DCDEC11D0354EF00E805E4 /* AppDelegate.swift in Sources */,
+				C5FEB52B1DA9E191007526AD /* GameVC.swift in Sources */,
 				48EF72EA1D2548F100599E8E /* GameHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
